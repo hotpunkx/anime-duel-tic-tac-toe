@@ -1,11 +1,15 @@
-import { PlayerAvatar } from "./PlayerAvatar";
+import { PlayerAvatar, AvatarStyle } from "./PlayerAvatar";
 
 interface ScoreboardProps {
   scores: { X: number; O: number };
   currentPlayer: 'X' | 'O';
+  player1Name: string;
+  player2Name: string;
+  player1Avatar: AvatarStyle;
+  player2Avatar: AvatarStyle;
 }
 
-export const Scoreboard = ({ scores, currentPlayer }: ScoreboardProps) => {
+export const Scoreboard = ({ scores, currentPlayer, player1Name, player2Name, player1Avatar, player2Avatar }: ScoreboardProps) => {
   return (
     <div className="flex gap-10 mb-8">
       <div 
@@ -21,8 +25,8 @@ export const Scoreboard = ({ scores, currentPlayer }: ScoreboardProps) => {
           boxShadow: currentPlayer === 'X' ? '0 0 30px hsl(var(--game-yellow))' : '4px 4px 0 rgba(0,0,0,0.3)'
         }}
       >
-        <PlayerAvatar player="X" isLeft />
-        <span className="ml-6">P1</span>
+        <PlayerAvatar player="X" isLeft avatarStyle={player1Avatar} />
+        <span className="ml-6">{player1Name}</span>
         <span className="ml-4">{scores.X}</span>
       </div>
 
@@ -40,8 +44,8 @@ export const Scoreboard = ({ scores, currentPlayer }: ScoreboardProps) => {
         }}
       >
         <span className="mr-4">{scores.O}</span>
-        <span className="mr-6">P2</span>
-        <PlayerAvatar player="O" isLeft={false} />
+        <span className="mr-6">{player2Name}</span>
+        <PlayerAvatar player="O" isLeft={false} avatarStyle={player2Avatar} />
       </div>
     </div>
   );

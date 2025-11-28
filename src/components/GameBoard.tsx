@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Scoreboard } from "./Scoreboard";
 import { GameGrid } from "./GameGrid";
 import animeBackground from "@/assets/anime-background.jpg";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import { PlayerCustomization, AvatarStyle } from "./PlayerCustomization";
 
 type Player = 'X' | 'O';
 type Board = (Player | '')[];
@@ -13,7 +14,37 @@ export const GameBoard = () => {
   const [currentPlayer, setCurrentPlayer] = useState<Player>('X');
   const [gameActive, setGameActive] = useState(true);
   const [scores, setScores] = useState({ X: 0, O: 0 });
+  const [player1Name, setPlayer1Name] = useState('P1');
+  const [player2Name, setPlayer2Name] = useState('P2');
+  const [player1Avatar, setPlayer1Avatar] = useState<AvatarStyle>('default');
+  const [player2Avatar, setPlayer2Avatar] = useState<AvatarStyle>('default');
   const { playMove, playWin, playDraw } = useGameSounds();
+
+  // Load customization from localStorage
+  useEffect(() => {
+    const savedP1Name = localStorage.getItem('player1Name');
+    const savedP2Name = localStorage.getItem('player2Name');
+    const savedP1Avatar = localStorage.getItem('player1Avatar') as AvatarStyle;
+    const savedP2Avatar = localStorage.getItem('player2Avatar') as AvatarStyle;
+
+    if (savedP1Name) setPlayer1Name(savedP1Name);
+    if (savedP2Name) setPlayer2Name(savedP2Name);
+    if (savedP1Avatar) setPlayer1Avatar(savedP1Avatar);
+    if (savedP2Avatar) setPlayer2Avatar(savedP2Avatar);
+  }, []);
+
+  const handleCustomizationSave = (p1Name: string, p2Name: string, p1Avatar: AvatarStyle, p2Avatar: AvatarStyle) => {
+    setPlayer1Name(p1Name || 'P1');
+    setPlayer2Name(p2Name || 'P2');
+    setPlayer1Avatar(p1Avatar);
+    setPlayer2Avatar(p2Avatar);
+
+    // Save to localStorage
+    localStorage.setItem('player1Name', p1Name || 'P1');
+    localStorage.setItem('player2Name', p2Name || 'P2');
+    localStorage.setItem('player1Avatar', p1Avatar);
+    localStorage.setItem('player2Avatar', p2Avatar);
+  };
 
   const winningConditions = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
@@ -103,10 +134,23 @@ export const GameBoard = () => {
           ANIME TIC-TAC-TOE!
         </h1>
 
-        <Scoreboard 
-          scores={scores}
-          currentPlayer={currentPlayer}
-        />
+        <div className="flex items-center gap-4 mb-8">
+          <PlayerCustomization
+            player1Name={player1Name}
+            player2Name={player2Name}
+            player1Avatar={player1Avatar}
+            player2Avatar={player2Avatar}
+            onSave={handleCustomizationSave}
+          />
+          <Scoreboard 
+            scores={scores}
+            currentPlayer={currentPlayer}
+            player1Name={player1Name}
+            player2Name={player2Name}
+            player1Avatar={player1Avatar}
+            player2Avatar={player2Avatar}
+          />
+        </div>
 
         <GameGrid 
           board={board}
