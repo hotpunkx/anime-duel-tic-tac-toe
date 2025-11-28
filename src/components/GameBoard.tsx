@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Scoreboard } from "./Scoreboard";
 import { GameGrid } from "./GameGrid";
 import animeBackground from "@/assets/anime-background.jpg";
+import { useGameSounds } from "@/hooks/useGameSounds";
 
 type Player = 'X' | 'O';
 type Board = (Player | '')[];
@@ -12,6 +13,7 @@ export const GameBoard = () => {
   const [currentPlayer, setCurrentPlayer] = useState<Player>('X');
   const [gameActive, setGameActive] = useState(true);
   const [scores, setScores] = useState({ X: 0, O: 0 });
+  const { playMove, playWin, playDraw } = useGameSounds();
 
   const winningConditions = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
@@ -35,15 +37,19 @@ export const GameBoard = () => {
     const newBoard = [...board];
     newBoard[index] = currentPlayer;
     setBoard(newBoard);
+    
+    playMove();
 
     const result = checkWinner(newBoard);
     
     if (result && result !== 'draw') {
       setScores(prev => ({ ...prev, [result]: prev[result] + 1 }));
       setGameActive(false);
+      playWin();
       setTimeout(() => alert(`Player ${result} Wins! 🎉`), 100);
     } else if (result === 'draw') {
       setGameActive(false);
+      playDraw();
       setTimeout(() => alert('Draw! 🤝'), 100);
     } else {
       setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
