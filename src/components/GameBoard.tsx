@@ -5,6 +5,8 @@ import { GameGrid } from "./GameGrid";
 import animeBackground from "@/assets/anime-background.jpg";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { PlayerCustomization, AvatarStyle } from "./PlayerCustomization";
+import { useWinCelebration } from "@/hooks/useWinCelebration";
+import { WinnerModal } from "./WinnerModal";
 
 type Player = 'X' | 'O';
 type Board = (Player | '')[];
@@ -18,7 +20,9 @@ export const GameBoard = () => {
   const [player2Name, setPlayer2Name] = useState('P2');
   const [player1Avatar, setPlayer1Avatar] = useState<AvatarStyle>('default');
   const [player2Avatar, setPlayer2Avatar] = useState<AvatarStyle>('default');
+  const [winner, setWinner] = useState<'X' | 'O' | 'draw' | null>(null);
   const { playMove, playWin, playDraw } = useGameSounds();
+  const { triggerConfetti } = useWinCelebration();
 
   // Load customization from localStorage
   useEffect(() => {
@@ -77,11 +81,12 @@ export const GameBoard = () => {
       setScores(prev => ({ ...prev, [result]: prev[result] + 1 }));
       setGameActive(false);
       playWin();
-      setTimeout(() => alert(`Player ${result} Wins! 🎉`), 100);
+      triggerConfetti(result);
+      setTimeout(() => setWinner(result), 100);
     } else if (result === 'draw') {
       setGameActive(false);
       playDraw();
-      setTimeout(() => alert('Draw! 🤝'), 100);
+      setTimeout(() => setWinner('draw'), 100);
     } else {
       setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
     }
@@ -91,6 +96,11 @@ export const GameBoard = () => {
     setBoard(Array(9).fill(''));
     setGameActive(true);
     setCurrentPlayer('X');
+    setWinner(null);
+  };
+
+  const handleWinnerClose = () => {
+    setWinner(null);
   };
 
   return (
@@ -186,6 +196,12 @@ export const GameBoard = () => {
           </Button>
         </div>
       </div>
+
+      <WinnerModal
+        winner={winner}
+        playerName={winner === 'X' ? player1Name : winner === 'O' ? player2Name : ''}
+        onClose={handleWinnerClose}
+      />
     </div>
   );
 };
